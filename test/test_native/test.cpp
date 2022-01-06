@@ -1,8 +1,6 @@
 #include <unity.h>
 #include <iostream>
-#include <string.h>
 #include <Menu.h>
-#include <vector>
 #include <Navigator.h>
 
 const char* csv = R"LONGSTRING(1;0;0;Menu 1
@@ -29,6 +27,7 @@ void test()
     std::cout << "convert test" << std::endl;
     Menu myMenu;
     myMenu.convertToMenu(csv);
+    myMenu.printVectorContent(myMenu.getVector());
     TEST_ASSERT_EQUAL(18, myMenu.getVector().size());
 }
 
@@ -68,27 +67,27 @@ void test_navigator_down()
     Navigator navigator(20, 4);
     navigator.setMenu(testContent);
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
 }
@@ -103,27 +102,27 @@ void test_navigator_up()
     Navigator navigator(20, 4);
     navigator.setMenu(testContent);
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.up();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.up();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.up();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.up();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
 }
@@ -135,103 +134,58 @@ void test_navigator_up_down()
     Menu myMenu;
     myMenu.convertToMenu(csv);
     myMenu.getContentsByParentId(1, testContent);
-    Navigator navigator(20, 4);
+    Navigator navigator(20, 2);
     navigator.setMenu(testContent);
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.up();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     navigator.down();
     // navigator.show();
-    navigator.showScreen();
+    navigator.print();
     navigator.printCursorPos();
     std::cout << "===============" << std::endl;
     for (int i = 0; i < 4; i++)
     {
         navigator.up();
         // navigator.show();
-        navigator.showScreen();
+        navigator.print();
         navigator.printCursorPos();
         std::cout << "===============" << std::endl;
     }
 }
 
-void test_print_after_before()
-{
-    std::cout << "test navigator" << std::endl;
-    std::vector<Content> testContent;
-    Menu myMenu;
-    myMenu.convertToMenu(csv);
-    myMenu.getContentsByParentId(1, testContent);
-    Navigator navigator(20, 4);
-    navigator.setMenu(testContent);
-    navigator.printAfterCursor(0);
-    std::cout << "Print After" << std::endl;
-    std::cout << "==================" << std::endl;
-    navigator.printAfterCursor(1);
-    std::cout << "==================" << std::endl;
-    navigator.printAfterCursor(2);
-    std::cout << "==================" << std::endl;
-    navigator.printAfterCursor(3);
-    std::cout << "==================" << std::endl;
-    std::cout << "Print Before" << std::endl;
-    navigator.printBeforeCursor(0);
-    std::cout << "==================" << std::endl;
-    navigator.printBeforeCursor(1);
-    std::cout << "==================" << std::endl;
-    navigator.printBeforeCursor(2);
-    std::cout << "==================" << std::endl;
-    navigator.printBeforeCursor(3);
-    std::cout << "==================" << std::endl;
 
-}
-
-void test_print_around_cursor()
-{
-    std::cout << "test navigator" << std::endl;
-    std::vector<Content> testContent;
-    Menu myMenu;
-    myMenu.convertToMenu(csv);
-    myMenu.getContentsByParentId(1, testContent);
-    Navigator navigator(20, 4);
-    navigator.setMenu(testContent);
-    std::cout << "Print Around Cursor" << std::endl;
-    navigator.printAroundCursor(0, 3);
-    std::cout << "==================" << std::endl;
-    std::cout << "Print Around Cursor" << std::endl;
-    navigator.printAroundCursor(3, 3);
-    std::cout << "==================" << std::endl;
-}
 
 
 int main(int argc, char **argv) {
     UNITY_BEGIN();
-    // RUN_TEST(test);
+    RUN_TEST(test);
     // RUN_TEST(test_get_content_id);
     // RUN_TEST(test_get_contents_parent_id);
     // RUN_TEST(test_navigator_down);

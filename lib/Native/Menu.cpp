@@ -115,10 +115,10 @@ void Menu::printVectorContent(const std::vector<Content> &content)
 {
     for (size_t i = 0; i < content.size(); i++)
     {
-        // std::cout << content.at(i).id << " ";
-        // std::cout << content.at(i).parentId << " ";
-        // std::cout << content.at(i).endFlag << " ";
-        // std::cout << content.at(i).description << std::endl;
+        std::cout << unsigned(content.at(i).id) << " ";
+        std::cout << unsigned(content.at(i).parentId) << " ";
+        std::cout << content.at(i).endFlag << " ";
+        std::cout << content.at(i).description << std::endl;
     }
 }
 

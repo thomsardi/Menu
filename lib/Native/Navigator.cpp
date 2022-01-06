@@ -7,7 +7,7 @@ Navigator::Navigator(uint8_t col, uint8_t row)
     _screenCursorPos = _cursorPos;
 }
 
-void Navigator::setMenu(const std::vector<Content> &content)
+void Navigator::setMenu(const DataList &content)
 {
     _contentptr = &content;
 }
@@ -17,148 +17,38 @@ void Navigator::setArrow(bool enabled)
     _isArrowEnabled = enabled;
 }
 
-void Navigator::show()
+void Navigator::print()
 {
     if (_contentptr == nullptr)
     {
         return;
     }
-    for (int i = 0; i < _rowSize; i ++)
-    {
-        if (i == _screenCursorPos)
-        {
-            std::cout << ">";
-        }
-        else
-        {
-            std::cout << ".";
-        }
-        if (_cursorPos+i >= _contentptr->size())
-        {
-            int index = (_cursorPos + i) - _contentptr->size();
-            std::cout << _contentptr->at(index).description << std::endl;    
-        }
-        else
-        {
-            int index = _cursorPos + i;
-            std::cout << _contentptr->at(index).description << std::endl;
-        }    
-    }
-
+    // printList(std::cout);
+    printList();
 }
 
-void Navigator::showScreen()
+/*
+void Navigator::printList(std::ostream &os)
 {
-    if (_contentptr == nullptr)
+    int rows = _rowSize;
+    if (_contentptr->size() <= _rowSize)
     {
-        return;
+        rows = _contentptr->size();
     }
-    for (int i = 0; i < _rowSize; i ++)
+    
+    for (int i = 0; i < rows; i++)
     {
         if (i == _screenCursorPos)
         {
-            std::cout << ">";
+            // std::cout << ">";
+            os << ">";
         }
         else
         {
-            std::cout << " ";
+            // std::cout << ".";
+            os << ".";
         }
-
-        if (_isTopOut)
-        {    
-            // Print after cursor
-            int index = _cursorPos + i;
-            if (index >= _contentptr->size())
-            {
-                index = index - _contentptr->size();
-            }
-            std::cout << _contentptr->at(index).description << std::endl;            
-        }
-        else if (_isBottomOut)
-        {
-            // Print befor cursor
-            int index = (_cursorPos - (_rowSize - 1)) + i;
-            if (index < 0 )
-            {
-                index = _contentptr->size() - abs(index);
-            }
-            std::cout << _contentptr->at(index).description << std::endl;
-        }
-        else
-        {
-            // Print around cursor
-            int index = (_cursorPos - _screenCursorPos) + i;
-            if (index < 0)
-            {
-                index = _contentptr->size() - abs(index);
-            }
-
-            else if (index >= _contentptr->size())
-            {
-                index = index - _contentptr->size();
-            }
-
-            std::cout << _contentptr->at(index).description << std::endl;
-        }
-            
-    }
-}
-
-void Navigator::printBeforeCursor(uint8_t cursorPos)
-{
-    for (int i = 0; i < _rowSize; i++)
-    {
-        if (i == _screenCursorPos)
-        {
-            std::cout << ">";
-        }
-        else
-        {
-            std::cout << " ";
-        }
-        int index = (cursorPos - (_rowSize - 1)) + i;
-        if (index < 0 )
-        {
-            index = _contentptr->size() - abs(index);
-        }
-        std::cout << _contentptr->at(index).description << std::endl;
-    }
-}
-
-void Navigator::printAfterCursor(uint8_t cursorPos)
-{
-    for (int i = 0; i < _rowSize; i++)
-    {
-        if (i == _screenCursorPos)
-        {
-            std::cout << ">";
-        }
-        else
-        {
-            std::cout << " ";
-        }
-        int index = cursorPos + i;
-        if (index >= _contentptr->size())
-        {
-            index = index - _contentptr->size();
-        }
-        std::cout << _contentptr->at(index).description << std::endl;
-    }
-}
-
-void Navigator::printAroundCursor(uint8_t screenCursorPos, uint8_t cursorPos)
-{
-    for (int i = 0; i < _rowSize; i++)
-    {
-        if (i == _screenCursorPos)
-        {
-            std::cout << ">";
-        }
-        else
-        {
-            std::cout << " ";
-        }
-        int index = (cursorPos - screenCursorPos) + i;
+        int index = (_cursorPos - _screenCursorPos) + i;
         if (index < 0)
         {
             index = _contentptr->size() - abs(index);
@@ -168,10 +58,46 @@ void Navigator::printAroundCursor(uint8_t screenCursorPos, uint8_t cursorPos)
         {
             index = index - _contentptr->size();
         }
+        // std::cout << _contentptr->at(index).description << std::endl;
+        os << _contentptr->at(index).description << '\n'; 
+        os.flush();
+        // std::cout << '\n' << std::flush;
+    }
+}
+*/
 
+void Navigator::printList()
+{
+    int rows = _rowSize;
+    if (_contentptr->size() <= _rowSize)
+    {
+        rows = _contentptr->size();
+    }
+    
+    for (int i = 0; i < rows; i++)
+    {
+        if (i == _screenCursorPos)
+        {
+            std::cout << ">";
+        }
+        else
+        {
+            std::cout << ".";
+        }
+        int index = (_cursorPos - _screenCursorPos) + i;
+        if (index < 0)
+        {
+            index = _contentptr->size() - abs(index);
+        }
+
+        else if (index >= _contentptr->size())
+        {
+            index = index - _contentptr->size();
+        }
         std::cout << _contentptr->at(index).description << std::endl;
     }
 }
+
 
 void Navigator::updateScreen()
 {
@@ -191,18 +117,6 @@ void Navigator::up()
     {
         return;
     }
-    _isTopOut = false;
-    _isBottomOut = false;
-    if (_screenCursorPos == 0)
-    {
-        _isTopOut = true;
-        _screenCursorPos = 0;
-    }
-    else
-    {
-        _screenCursorPos--;
-    }
-
     if (_cursorPos == 0)
     {
         _cursorPos = _contentptr->size() - 1;
@@ -212,6 +126,22 @@ void Navigator::up()
     {
         _cursorPos--;
     }
+
+    if (_contentptr->size() <= _rowSize)
+    {
+        _screenCursorPos = _cursorPos;
+    }
+    else
+    {
+        if (_screenCursorPos == 0)
+        {
+            _screenCursorPos = 0;
+        }
+        else
+        {
+            _screenCursorPos--;
+        }
+    }    
 }
 
 void Navigator::down()
@@ -220,18 +150,6 @@ void Navigator::down()
     {
         return;
     }
-    _isBottomOut = false;
-    _isTopOut = false;
-    if (_screenCursorPos == (_rowSize-1))
-    {
-        _isBottomOut = true;
-        _screenCursorPos = _rowSize-1;
-    }
-    else
-    {
-        _screenCursorPos++;
-    }
-    
     if (_cursorPos == _contentptr->size() - 1)
     {
         _cursorPos = 0;
@@ -239,6 +157,22 @@ void Navigator::down()
     else
     {
         _cursorPos++;
+    }
+
+    if (_contentptr->size() <= _rowSize)
+    {
+        _screenCursorPos = _cursorPos;
+    }
+    else
+    {
+        if (_screenCursorPos == (_rowSize-1))
+        {
+            _screenCursorPos = _rowSize-1;
+        }
+        else
+        {
+            _screenCursorPos++;
+        }
     }
 }
 
@@ -250,6 +184,32 @@ void Navigator::back()
 void Navigator::ok()
 {
 
+}
+
+
+Content Navigator::getContentById(uint8_t id)
+{
+    Content content;
+    for (size_t i = 0; i < _contentptr->size() ; i++)
+    {
+        if (_contentptr->at(i).id == id)
+        {
+            content = _contentptr->at(i);
+        }
+    }
+    return content;
+}
+
+void Navigator::getContentsByParentId(uint8_t parentId)
+{
+    _buffer.clear();
+    for (size_t i = 0; i < _contentptr->size(); i++)
+    {
+        if (_contentptr->at(i).parentId == parentId)
+        {
+            _buffer.push_back(_contentptr->at(i));
+        }
+    }
 }
 
 Navigator::~Navigator()
