@@ -133,9 +133,10 @@ void test_navigator_up_down()
     std::vector<Content> testContent;
     Menu myMenu;
     myMenu.convertToMenu(csv);
-    myMenu.getContentsByParentId(1, testContent);
+    //myMenu.getContentsByParentId(1, testContent);
     Navigator navigator(20, 2);
-    navigator.setMenu(testContent);
+    navigator.setMenu(myMenu.getVector());
+    // navigator.setMenu(testContent);
     // navigator.show();
     navigator.print();
     navigator.printCursorPos();
@@ -180,19 +181,130 @@ void test_navigator_up_down()
     }
 }
 
+void test_navigator_up_down_ok_cancel()
+{
+    std::cout << "test navigator up down" << std::endl;
+    std::vector<Content> testContent;
+    const std::vector<Content> *ptr;
+    Menu myMenu;
+    myMenu.convertToMenu(csv);
+    Navigator navigator(20, 20);
+    navigator.setMenu(myMenu.getVector());
+    std::cout << "Print Main Menu" << std::endl;
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Cursor Down" << std::endl;
+    navigator.down();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Back Button" << std::endl;
+    navigator.back();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Back Button" << std::endl;
+    navigator.back();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Back Button" << std::endl;
+    navigator.back();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Back Button" << std::endl;
+    navigator.back();
+    navigator.print();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+}
+
+void my_custom_event()
+{
+    std::cout << "You are now in custom event" << std::endl;
+    for (int i = 0; i < 50; i ++)
+    {
+        std::cout << "iteration = " << i << std::endl;
+    }
+}
+
+void test_navigator_custom_event()
+{
+    std::cout << "test navigator custom event" << std::endl;
+    std::vector<Content> testContent;
+    const std::vector<Content> *ptr;
+    Menu myMenu;
+    myMenu.convertToMenu(csv);
+    Navigator navigator(20, 20);
+    navigator.setMenu(myMenu.getVector());
+    navigator.addListener(15, my_custom_event);
+    std::cout << "Print Main Menu" << std::endl;
+    navigator.run();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Cursor Down" << std::endl;
+    navigator.down();
+    navigator.run();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.run();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.run();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    std::cout << "Ok Button" << std::endl;
+    navigator.ok();
+    navigator.run();
+    navigator.printCursorPos();
+    std::cout << "===============" << std::endl;
+    navigator.run();
+    std::cout << "===============" << std::endl;
+    navigator.back();
+    navigator.run();
+    std::cout << "===============" << std::endl;
+}
 
 
 
 int main(int argc, char **argv) {
     UNITY_BEGIN();
-    RUN_TEST(test);
+    // RUN_TEST(test);
     // RUN_TEST(test_get_content_id);
     // RUN_TEST(test_get_contents_parent_id);
     // RUN_TEST(test_navigator_down);
     // RUN_TEST(test_navigator_up);
-    RUN_TEST(test_navigator_up_down);
+    // RUN_TEST(test_navigator_up_down);
+    // RUN_TEST(test_navigator_up_down_ok_cancel);
     // RUN_TEST(test_print_after_before);
     // RUN_TEST(test_print_around_cursor);
+    RUN_TEST(test_navigator_custom_event);
     UNITY_END();
     std::cout << "test finished" << std::endl;
     return 0;

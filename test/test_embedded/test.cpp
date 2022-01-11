@@ -2,6 +2,7 @@
 #include <unity.h>
 #include <MenuEmbedded.h>
 #include <Vector.h>
+#include <LiquidCrystal_I2C.h>
 
 const char* csv = R"LONGSTRING(1;0;0;Menu 1
 2;0;0;Menu 2
@@ -22,7 +23,7 @@ const char* csv = R"LONGSTRING(1;0;0;Menu 1
 17;7;1;Sub Sub Menu 2.3
 18;7;1;Sub Sub Menu 2.4)LONGSTRING";
 
-
+LiquidCrystal_I2C lcd;
 
 void dummy_test()
 {
