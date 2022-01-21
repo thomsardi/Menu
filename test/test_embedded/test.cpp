@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <unity.h>
 #include <MenuEmbedded.h>
+#include <NavigatorEmbedded.h>
 #include <Vector.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -23,11 +24,9 @@ const char* csv = R"LONGSTRING(1;0;0;Menu 1
 17;7;1;Sub Sub Menu 2.3
 18;7;1;Sub Sub Menu 2.4)LONGSTRING";
 
-LiquidCrystal_I2C lcd;
-
 void dummy_test()
 {
-    Menu myMenu;
+    MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     Content storage[64];
     Vector<Content> buffer(storage);
@@ -36,7 +35,7 @@ void dummy_test()
 
 void dummy_test2()
 {
-    Menu myMenu;
+    MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     Content storage[64];
     Vector<Content> buffer(storage);
@@ -62,7 +61,7 @@ void dummy_test3()
 
 void test()
 {
-    Menu myMenu;
+    MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     // myMenu.printVectorContent(Serial, myMenu.getVector());
     TEST_ASSERT_EQUAL(18, myMenu.getVector().size());
@@ -72,7 +71,7 @@ void test()
 void test_get_content_id()
 {
     Content content;
-    Menu myMenu;
+    MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     content = myMenu.getContentById(18);
     TEST_ASSERT_EQUAL(18, content.id);
@@ -83,7 +82,7 @@ void test_get_content_id()
 
 void test_parent_id()
 {
-    Menu myMenu;
+    MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     Content storageArray[32];
     Vector<Content> buffer(storageArray);
@@ -94,17 +93,107 @@ void test_parent_id()
     TEST_ASSERT_EQUAL_STRING("Sub Menu 1.1", buffer.at(0).description);
 }
 
+void my_custom_event()
+{
+    Serial.println("You are now in custom event");
+    for (int i = 0; i < 50; i ++)
+    {
+        Serial.print("iteration = ");
+        Serial.println(i);
+    }
+}
+
+void my_custom_event1()
+{
+    Serial.println("You are now in custom event1");
+    for (int i = 0; i < 100; i ++)
+    {
+        Serial.print("iteration = ");
+        Serial.println(i);
+    }
+}
+
+void test_simple()
+{
+    Serial.println("Simple Test");
+    MenuEmbedded myMenu;
+    myMenu.convertToMenu(csv);
+    myMenu.printVectorContent(Serial, myMenu.getVector());
+    NavigatorEmbedded navigator(20,2);
+    navigator.setMenu(myMenu.getVector());
+    navigator.addListener(15, my_custom_event);
+    navigator.setPrinterOutput(&Serial);
+    Serial.println("Print Main Menu");
+    navigator.run();
+}
+
+void test_navigator_custom_event()
+{
+    Serial.println("test navigator custom event");
+    MenuEmbedded myMenu;
+    myMenu.convertToMenu(csv);
+    NavigatorEmbedded navigator(20, 2);
+    navigator.setMenu(myMenu.getVector());
+    navigator.addListener(15, my_custom_event);
+    navigator.addListener(11, my_custom_event1);
+    navigator.setPrinterOutput(&Serial);
+    Serial.println("Print Main Menu");
+    navigator.run();
+    navigator.printCursorPos();
+    //navigator.stop();
+    Serial.println("===============");
+    Serial.println("Cursor Down");
+    navigator.down();
+    navigator.run();
+    navigator.printCursorPos();
+    Serial.println("===============");
+    Serial.println("Ok Button");
+    navigator.ok();
+    navigator.run();
+    navigator.printCursorPos();
+    Serial.println("===============");
+    Serial.println("Ok Button");
+    navigator.ok();
+    navigator.run();
+    navigator.printCursorPos();
+    Serial.println("===============");
+    Serial.println("Ok Button");
+    navigator.ok();
+    navigator.run();
+    navigator.ok();
+    navigator.up();
+    navigator.down();
+    navigator.printCursorPos();
+    Serial.println("===============");
+    // navigator.run();
+    Serial.println("===============");
+    navigator.back();
+    navigator.run();
+    Serial.println("===============");
+    navigator.back();
+    navigator.run();
+    Serial.println("===============");
+    navigator.back();
+    navigator.run();
+    Serial.println("===============");
+    navigator.back();
+    navigator.run();
+    Serial.println("===============");
+}
+
 void setup() {
     // NOTE!!! Wait for >2 secs
     // if board doesn't support software reset via Serial.DTR/RTS
     delay(2000);
     UNITY_BEGIN();    // IMPORTANT LINE!
-    RUN_TEST(dummy_test);
-    RUN_TEST(dummy_test2);
-    RUN_TEST(dummy_test3);
-    RUN_TEST(test);
-    RUN_TEST(test_get_content_id);
-    RUN_TEST(test_parent_id);
+    // RUN_TEST(dummy_test);
+    // RUN_TEST(dummy_test2);
+    // RUN_TEST(dummy_test3);
+    // RUN_TEST(test);
+    // RUN_TEST(test_get_content_id);
+    // RUN_TEST(test_parent_id);
+    RUN_TEST(test_navigator_custom_event);
+    // RUN_TEST(test_simple);
     UNITY_END();
 }
 

@@ -1,18 +1,23 @@
-#include <Navigator.h>
+#include <NavigatorLcd.h>
 
-Navigator::Navigator(uint8_t col, uint8_t row)
+NavigatorLcd::NavigatorLcd(uint8_t col, uint8_t row)
 {
+    _dataMenu.setStorage(_dataMenuStorage);
+    _buffer.setStorage(_bufferStorage);
+    _listenerList.setStorage(_listenerListStorage);
+    _cursorHistory.setStorage(_cursorHistoryStorage);
     _colSize = col;
     _rowSize = row;
     _screenCursorPos = _cursorPos;
     _isInCustomEvent = false;
     _activeListener = nullptr;
     _isKeypadDisabled = false;
-    _isNeedUpdate = true;
+    _isNeedUpdate = false;
 }
 
-void Navigator::run()
+void NavigatorLcd::run()
 {
+    _isStop = false;
     if (_isNeedUpdate)
     {
         print();
@@ -38,7 +43,12 @@ void Navigator::run()
     }
 }
 
-void Navigator::setMenu(const DataList &content)
+void NavigatorLcd::stop()
+{
+    _isStop = true;
+}
+
+void NavigatorLcd::setMenu(const DataList &content)
 {
     _isNeedUpdate = true;
     _dataMenu.clear();
@@ -51,22 +61,22 @@ void Navigator::setMenu(const DataList &content)
     getContentsByParentId(0);
 }
 
-void Navigator::setArrow(bool enabled)
+
+void NavigatorLcd::setPrinterOutput(LiquidCrystal_I2C *lcd)
 {
-    _isArrowEnabled = enabled;
+    _lcd = lcd;
 }
 
-void Navigator::print()
+void NavigatorLcd::print()
 {
     if (_buffer.size() <= 0)
     {
         return;
     }
-    // printList(std::cout);
     printList(_buffer);
 }
 
-void Navigator::printList(const DataList &_buffer)
+void NavigatorLcd::printList(const DataList &_buffer)
 {
     int rows = _rowSize;
     if (_buffer.size() <= _rowSize)
@@ -76,13 +86,16 @@ void Navigator::printList(const DataList &_buffer)
     
     for (int i = 0; i < rows; i++)
     {
+        String s;
         if (i == _screenCursorPos)
         {
-            std::cout << ">";
+            s += ">";
+            // _stream->print(">");
         }
         else
         {
-            std::cout << ".";
+            s += " ";
+            // _stream->print(" ");
         }
         int index = (_cursorPos - _screenCursorPos) + i;
         if (index < 0)
@@ -94,11 +107,17 @@ void Navigator::printList(const DataList &_buffer)
         {
             index = index - _buffer.size();
         }
-        std::cout << _buffer.at(index).description << std::endl;
+        s += _buffer.at(index).description;
+        if (_lcd != nullptr)
+        {
+            _lcd->setCursor(0, i);
+            printWithWhiteSpace(s);
+        }
+        //_stream->println(_buffer.at(index).description);
     }
 }
 
-void Navigator::addListener(uint8_t id, Listener listener)
+void NavigatorLcd::addListener(uint8_t id, Listener listener)
 {
     ListenerList e;
     e.id = id;
@@ -106,48 +125,61 @@ void Navigator::addListener(uint8_t id, Listener listener)
     _listenerList.push_back(e);
 }
 
-void Navigator::addNotFoundListener(Listener listener)
+void NavigatorLcd::addNotFoundListener(Listener listener)
 {
     _notFoundListener = listener;
 }
 
-void Navigator::removeListener(uint8_t id)
+void NavigatorLcd::removeListener(uint8_t id)
 {
-    std::vector<ListenerList>::iterator _iterator;
     for(int i = 0; i < _listenerList.size(); i++)
     {
-        _iterator = _listenerList.begin() + i;
         if(_listenerList.at(i).id == id)
         {
             if (_listenerList.at(i).listener != _activeListener) // to prevent erasing running function
             {
-                _listenerList.erase(_iterator);
+                _listenerList.remove(i);
             }
             return;
         }
     }
 }
 
-void Navigator::printCursorPos()
+void NavigatorLcd::printCursorPos()
 {
     // std::cout << "Cursor Pos = " << unsigned(_cursorPos) << std::endl;
     // std::cout << "Screen Cursor Pos = " << unsigned(_screenCursorPos) << std::endl;
 }
 
+void NavigatorLcd::printWithWhiteSpace(String s)
+{
+    if (s.length() < _colSize)
+    {
+        _lcd->print(s);
+        for (int i = s.length(); i < _colSize; i++)
+        {
+            _lcd->print(" ");
+        }        
+    }
+    else
+    {
+        _lcd->print(s.substring(0, _colSize-1));
+    }
+}
 
-void Navigator::disableKeypad()
+void NavigatorLcd::disableKeypad()
 {
     _isKeypadDisabled = true;
 }
 
-void Navigator::enableKeypad()
+void NavigatorLcd::enableKeypad()
 {
     _isKeypadDisabled = false;
 }
 
-void Navigator::up()
+void NavigatorLcd::up()
 {
-    if (_buffer.size() <= 0 || _isInCustomEvent)
+    if (_buffer.size() <= 0 || _isInCustomEvent || _isStop)
     {
         return;
     }
@@ -179,9 +211,9 @@ void Navigator::up()
     _isNeedUpdate = true;  
 }
 
-void Navigator::down()
+void NavigatorLcd::down()
 {
-    if (_buffer.size() <= 0 || _isInCustomEvent)
+    if (_buffer.size() <= 0 || _isInCustomEvent || _isStop)
     {
         return;
     }
@@ -212,9 +244,9 @@ void Navigator::down()
     _isNeedUpdate = true;
 }
 
-void Navigator::back()
+void NavigatorLcd::back()
 {
-    if (_isKeypadDisabled)
+    if (_isKeypadDisabled || _isStop)
     {
         return;
     }
@@ -244,9 +276,9 @@ void Navigator::back()
     }
 }
 
-void Navigator::ok()
+void NavigatorLcd::ok()
 {
-    if (_isInCustomEvent || _isKeypadDisabled) // if it is still in custom event
+    if (_isInCustomEvent || _isKeypadDisabled || _isStop) // if it is still in custom event or keypad disabled
     {
         return;
     }
@@ -259,6 +291,7 @@ void Navigator::ok()
     {
         if (!c.endFlag) // if it is not the end of menu level
         {
+            // if menu with same parent found
             if (getContentsByParentId(c.id))
             {
                 cursor.cursorPos = _cursorPos; // save the last cursor position
@@ -266,12 +299,9 @@ void Navigator::ok()
                 _cursorHistory.push_back(cursor); // save the cursor into cursor history
                 _cursorPos = 0;
                 _screenCursorPos = 0;
-            }     
-        }
+            }        }
         else // if end flag is true
         {
-            // std::cout << "Custom Event" << std::endl;
-            // std::cout << "Get the event" << std::endl;
             cursor.cursorPos = _cursorPos; // save the last cursor position
             cursor.screenCursorPos = _screenCursorPos; // save the last screen cursor position
             _cursorHistory.push_back(cursor); // save the cursor into cursor history
@@ -280,6 +310,7 @@ void Navigator::ok()
             _activeListener = getEvent(c.id); // get the event
             if (_activeListener == nullptr) // if the event not found
             {
+                // _isNeedUpdate = true;
                 // std::cout << "Event not found" << std::endl;
                 // _isInCustomEvent = false; // set the flag event to false to prevent "run" method execute blank function pointer
             }
@@ -287,6 +318,7 @@ void Navigator::ok()
             {
                 // _isInCustomEvent = true;
             }
+                
         }    
     }
     else // if id not found
@@ -296,7 +328,7 @@ void Navigator::ok()
     }
 }
 
-Listener Navigator::getEvent(uint8_t id)
+Listener NavigatorLcd::getEvent(uint8_t id)
 {
     for(int i = 0; i < _listenerList.size(); i++)
     {
@@ -308,7 +340,7 @@ Listener Navigator::getEvent(uint8_t id)
     return nullptr;
 }
 
-bool Navigator::getContentById(uint8_t id, Content &content)
+bool NavigatorLcd::getContentById(uint8_t id, Content &content)
 {
     bool isFound = false;
     content = _error;
@@ -323,7 +355,7 @@ bool Navigator::getContentById(uint8_t id, Content &content)
     return isFound;
 }
 
-bool Navigator::getContentsByParentId(uint8_t parentId)
+bool NavigatorLcd::getContentsByParentId(uint8_t parentId)
 {
     bool isFound = false;
     bool lastIsFound = false;
@@ -343,7 +375,7 @@ bool Navigator::getContentsByParentId(uint8_t parentId)
     return isFound;
 }
 
-Navigator::~Navigator()
+NavigatorLcd::~NavigatorLcd()
 {
 
 }

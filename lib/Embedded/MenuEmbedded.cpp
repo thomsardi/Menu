@@ -1,11 +1,11 @@
 #include <MenuEmbedded.h>
 
-Menu::Menu()
+MenuEmbedded::MenuEmbedded()
 {
     _content.setStorage(_storageArray);
 }
 
-void Menu::convertToMenu(const char* csv)
+void MenuEmbedded::convertToMenu(const char* csv)
 {
     String storageArray[_MAX_ELEMENT_];
     Vector<String> rowList(storageArray);
@@ -20,7 +20,7 @@ void Menu::convertToMenu(const char* csv)
     }
 }
 
-Content Menu::getContentById(uint8_t id)
+Content MenuEmbedded::getContentById(uint8_t id)
 {
     Content content;
     for (size_t i = 0; i < _content.size(); i++)
@@ -28,13 +28,12 @@ Content Menu::getContentById(uint8_t id)
         if (_content.at(i).id == id)
         {
             content = _content.at(i);
-            return content;
         }
     }
     return content;
 }
 
-void Menu::getContentsByParentId(uint8_t parentId, Content content[])
+void MenuEmbedded::getContentsByParentId(uint8_t parentId, Content content[])
 {
     uint8_t rows = 0;
     for (size_t i = 0; i < _content.size(); i++)
@@ -47,9 +46,8 @@ void Menu::getContentsByParentId(uint8_t parentId, Content content[])
     }
 }
 
-void Menu::getContentsByParentId(uint8_t parentId, Vector<Content> &content)
+void MenuEmbedded::getContentsByParentId(uint8_t parentId, Vector<Content> &content)
 {
-    content.clear();
     for (size_t i = 0; i < _content.size(); i++)
     {
         if (_content.at(i).parentId == parentId)
@@ -59,7 +57,7 @@ void Menu::getContentsByParentId(uint8_t parentId, Vector<Content> &content)
     }
 }
 
-void Menu::splitIntoRows(String csv, const char* delimiter, Vector<String> &rowList)
+void MenuEmbedded::splitIntoRows(String csv, const char* delimiter, Vector<String> &rowList)
 {
     size_t arraySize = csv.length();
     char buffer[arraySize+1];
@@ -73,7 +71,7 @@ void Menu::splitIntoRows(String csv, const char* delimiter, Vector<String> &rowL
     }
 }
 
-void Menu::splitIntoColumns(String csv, const char* delimiter)
+void MenuEmbedded::splitIntoColumns(String csv, const char* delimiter)
 {
     Content content;
     size_t arraySize = csv.length();
@@ -105,13 +103,31 @@ void Menu::splitIntoColumns(String csv, const char* delimiter)
     }
 }
 
-Vector<Content>Menu::getVector()
+Vector<Content>MenuEmbedded::getVector()
 {
     return _content;
 }
 
-void Menu::printVectorContent(HardwareSerial &serial, const Vector<Content> &content)
+/*
+void MenuEmbedded::printVectorContent(Stream &serial, const Vector<Content> &content)
 {
+    serial.println("Printing Vector Content");
+    for (size_t i = 0; i < content.size(); i++)
+    {
+        serial.print(content.at(i).id); 
+        serial.print(" ");
+        serial.print(content.at(i).parentId); 
+        serial.print(" ");
+        serial.print(content.at(i).endFlag); 
+        serial.print(" ");
+        serial.println(content.at(i).description); 
+    }
+}
+*/
+
+void MenuEmbedded::printVectorContent(Print &serial, const Vector<Content> &content)
+{
+    serial.println("Printing Vector Content");
     for (size_t i = 0; i < content.size(); i++)
     {
         serial.print(content.at(i).id); 
@@ -124,7 +140,7 @@ void Menu::printVectorContent(HardwareSerial &serial, const Vector<Content> &con
     }
 }
 
-Menu::~Menu()
+MenuEmbedded::~MenuEmbedded()
 {
 
 }

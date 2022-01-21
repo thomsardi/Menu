@@ -50,7 +50,6 @@ void Menu::getContentsByParentId(uint8_t parentId, Content content[])
 
 void Menu::getContentsByParentId(uint8_t parentId, std::vector<Content> &content)
 {
-    content.clear();
     for (size_t i = 0; i < _content.size(); i++)
     {
         if (_content.at(i).parentId == parentId)

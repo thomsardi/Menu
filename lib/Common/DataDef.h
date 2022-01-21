@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef void (*Event)();
+typedef void (*Listener)();
 
 struct Content {
     uint8_t id;
@@ -17,9 +17,9 @@ struct Cursor {
     uint8_t screenCursorPos;
 };
 
-struct EventList {
+struct ListenerList {
     uint8_t id;
-    Event event;
+    Listener listener;
 };
 
 #endif
