@@ -1,6 +1,6 @@
 #include <NavigatorLcd.h>
 
-NavigatorLcd::NavigatorLcd(uint8_t col, uint8_t row)
+NavigatorLcd::NavigatorLcd(uint8_t col, uint8_t row, LiquidCrystal_I2C *lcd)
 {
     _dataMenu.setStorage(_dataMenuStorage);
     _buffer.setStorage(_bufferStorage);
@@ -13,6 +13,7 @@ NavigatorLcd::NavigatorLcd(uint8_t col, uint8_t row)
     _activeListener = nullptr;
     _isKeypadDisabled = false;
     _isNeedUpdate = false;
+    _lcd = lcd;
 }
 
 void NavigatorLcd::run()
@@ -20,6 +21,7 @@ void NavigatorLcd::run()
     _isStop = false;
     if (_isNeedUpdate)
     {
+        _lcd->clear();
         print();
         _isNeedUpdate = false;
     }
@@ -54,17 +56,11 @@ void NavigatorLcd::setMenu(const DataList &content)
     _dataMenu.clear();
     _listenerList.clear();
     _activeListener = nullptr;
-    for (int i = 0; i < content.size(); i++)
+    for (size_t i = 0; i < content.size(); i++)
     {
         _dataMenu.push_back(content.at(i));
     }
     getContentsByParentId(0);
-}
-
-
-void NavigatorLcd::setPrinterOutput(LiquidCrystal_I2C *lcd)
-{
-    _lcd = lcd;
 }
 
 void NavigatorLcd::print()
@@ -90,12 +86,10 @@ void NavigatorLcd::printList(const DataList &_buffer)
         if (i == _screenCursorPos)
         {
             s += ">";
-            // _stream->print(">");
         }
         else
         {
             s += " ";
-            // _stream->print(" ");
         }
         int index = (_cursorPos - _screenCursorPos) + i;
         if (index < 0)
@@ -113,7 +107,6 @@ void NavigatorLcd::printList(const DataList &_buffer)
             _lcd->setCursor(0, i);
             printWithWhiteSpace(s);
         }
-        //_stream->println(_buffer.at(index).description);
     }
 }
 
@@ -132,7 +125,7 @@ void NavigatorLcd::addNotFoundListener(Listener listener)
 
 void NavigatorLcd::removeListener(uint8_t id)
 {
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         if(_listenerList.at(i).id == id)
         {
@@ -330,7 +323,7 @@ void NavigatorLcd::ok()
 
 Listener NavigatorLcd::getEvent(uint8_t id)
 {
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         if(_listenerList.at(i).id == id)
         {

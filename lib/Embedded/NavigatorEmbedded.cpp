@@ -1,6 +1,6 @@
 #include <NavigatorEmbedded.h>
 
-NavigatorEmbedded::NavigatorEmbedded(uint8_t col, uint8_t row)
+NavigatorEmbedded::NavigatorEmbedded(uint8_t col, uint8_t row, Stream *stream)
 {
     _dataMenu.setStorage(_dataMenuStorage);
     _buffer.setStorage(_bufferStorage);
@@ -13,6 +13,7 @@ NavigatorEmbedded::NavigatorEmbedded(uint8_t col, uint8_t row)
     _activeListener = nullptr;
     _isKeypadDisabled = false;
     _isNeedUpdate = false;
+    _stream = stream;
 }
 
 void NavigatorEmbedded::run()
@@ -54,17 +55,11 @@ void NavigatorEmbedded::setMenu(const DataList &content)
     _dataMenu.clear();
     _listenerList.clear();
     _activeListener = nullptr;
-    for (int i = 0; i < content.size(); i++)
+    for (size_t i = 0; i < content.size(); i++)
     {
         _dataMenu.push_back(content.at(i));
     }
     getContentsByParentId(0);
-}
-
-
-void NavigatorEmbedded::setPrinterOutput(Stream *stream)
-{
-    _stream = stream;
 }
 
 void NavigatorEmbedded::print()
@@ -108,8 +103,10 @@ void NavigatorEmbedded::printList(const DataList &_buffer)
             index = index - _buffer.size();
         }
         s += _buffer.at(index).description;
-        _stream->println(s);
-        //_stream->println(_buffer.at(index).description);
+        if (_stream != nullptr)
+        {
+            _stream->println(s);
+        }
     }
 }
 
@@ -128,7 +125,7 @@ void NavigatorEmbedded::addNotFoundListener(Listener listener)
 
 void NavigatorEmbedded::removeListener(uint8_t id)
 {
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         if(_listenerList.at(i).id == id)
         {
@@ -311,7 +308,7 @@ void NavigatorEmbedded::ok()
 
 Listener NavigatorEmbedded::getEvent(uint8_t id)
 {
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         if(_listenerList.at(i).id == id)
         {

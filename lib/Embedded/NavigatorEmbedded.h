@@ -23,9 +23,8 @@
 
 class NavigatorEmbedded {
     public:
-        NavigatorEmbedded(uint8_t col, uint8_t row); // class constructor
+        NavigatorEmbedded(uint8_t col, uint8_t row, Stream *stream); // class constructor
         void run(); // Run the class
-        void setPrinterOutput(Stream *stream);
         // void setPrinterOutput(Print *print);
         void addListener(uint8_t id, Listener listener); // add listener of class
         void addNotFoundListener(Listener listener);

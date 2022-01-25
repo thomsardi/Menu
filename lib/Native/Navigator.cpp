@@ -44,7 +44,7 @@ void Navigator::setMenu(const DataList &content)
     _dataMenu.clear();
     _listenerList.clear();
     _activeListener = nullptr;
-    for (int i = 0; i < content.size(); i++)
+    for (size_t i = 0; i < content.size(); i++)
     {
         _dataMenu.push_back(content.at(i));
     }
@@ -114,7 +114,7 @@ void Navigator::addNotFoundListener(Listener listener)
 void Navigator::removeListener(uint8_t id)
 {
     std::vector<ListenerList>::iterator _iterator;
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         _iterator = _listenerList.begin() + i;
         if(_listenerList.at(i).id == id)
@@ -298,7 +298,7 @@ void Navigator::ok()
 
 Listener Navigator::getEvent(uint8_t id)
 {
-    for(int i = 0; i < _listenerList.size(); i++)
+    for(size_t i = 0; i < _listenerList.size(); i++)
     {
         if(_listenerList.at(i).id == id)
         {

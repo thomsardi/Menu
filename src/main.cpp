@@ -2,11 +2,23 @@
 #include <MenuEmbedded.h>
 #include <LiquidCrystal_I2C.h>
 #include <NavigatorEmbedded.h>
+#include <NavigatorLcd.h>
+#include <Wire.h>
 
-NavigatorEmbedded navigator(20,2);
 int iteration = 0;
 String readBuffer;
 bool stringReady = false;
+
+// set the LCD number of columns and rows
+int lcdColumns = 16;
+int lcdRows = 2;
+
+// set LCD address, number of columns and rows
+// if you don't know your display address, run an I2C scanner sketch
+LiquidCrystal_I2C lcd(0x3F, lcdColumns, lcdRows);  
+
+NavigatorEmbedded navigator(lcdColumns,lcdRows, &Serial);
+NavigatorLcd navLcd(lcdColumns,lcdRows, &lcd);
 
 const char* csv = R"LONGSTRING(1;0;0;Menu 1
 2;0;0;Menu 2
@@ -84,9 +96,21 @@ void notFound()
   Serial.println("Listener Not Found");
 }
 
+void notFoundLcd()
+{
+  lcd.setCursor(0,0);
+  lcd.print("Listener Not Found");
+}
+
 void setup() {
   // put your setup code here, to run once:
+  // Wire.begin();
+  // initialize LCD
+  lcd.init();
+  // turn on LCD backlight                      
+  lcd.backlight();
   Serial.begin(115200);
+  // Serial.println("\nI2C Scanner");
   delay(2000);
   MenuEmbedded myMenu;
   // myMenu.convertToMenu(csv);
@@ -100,13 +124,14 @@ void setup() {
   navigator.addListener(14, event_kd);
   // navigator.addListener(15, my_custom_event);
   navigator.addNotFoundListener(notFound);
-  navigator.setPrinterOutput(&Serial);
+
+  navLcd.setMenu(myMenu.getVector());
+  navLcd.addNotFoundListener(notFoundLcd);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  // Serial.println("loop");
+void task1() {
   navigator.run();
+  navLcd.run();
   if (Serial.available() > 0)
   {
     char ch = Serial.read();
@@ -125,20 +150,87 @@ void loop() {
     if (readBuffer == "w")
     {
       navigator.up();
+      navLcd.up();
     }
     else if (readBuffer == "s")
     {
       navigator.down();
+      navLcd.down();
     }
     else if (readBuffer == "a")
     {
       navigator.back();
+      navLcd.back();
     }
     else if (readBuffer == "d")
     {
       navigator.ok();
+      navLcd.ok();
     }
     readBuffer = "";
   }
+}
+
+void i2c_scanner()
+{
+  byte error, address;
+  int nDevices;
+ 
+  Serial.println("Scanning...");
+ 
+  nDevices = 0;
+  for(address = 1; address < 127; address++ ) 
+  {
+ 
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+ 
+    if (error == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (address<16) 
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
+ 
+      nDevices++;
+    }
+    else if (error==4) 
+    {
+      Serial.print("Unknow error at address 0x");
+      if (address<16) 
+        Serial.print("0");
+      Serial.println(address,HEX);
+    }    
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+    Serial.println("done\n");
+ 
+  delay(5000);           // wait 5 seconds for next scan
+}
+
+void lcd_test()
+{
+    // set cursor to first column, first row
+  lcd.setCursor(0, 0);
+  // print message
+  lcd.print("Hello, World!");
+  delay(1000);
+  // clears the display to print new message
+  lcd.clear();
+  // set cursor to first column, second row
+  lcd.setCursor(0,1);
+  lcd.print("Hello, World!");
+  delay(1000);
+  lcd.clear(); 
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  // Serial.println("loop");
+  // i2c_scanner();
+  task1();
 
 }

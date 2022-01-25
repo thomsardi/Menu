@@ -119,10 +119,9 @@ void test_simple()
     MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
     myMenu.printVectorContent(Serial, myMenu.getVector());
-    NavigatorEmbedded navigator(20,2);
+    NavigatorEmbedded navigator(20,2, &Serial);
     navigator.setMenu(myMenu.getVector());
     navigator.addListener(15, my_custom_event);
-    navigator.setPrinterOutput(&Serial);
     Serial.println("Print Main Menu");
     navigator.run();
 }
@@ -132,11 +131,10 @@ void test_navigator_custom_event()
     Serial.println("test navigator custom event");
     MenuEmbedded myMenu;
     myMenu.convertToMenu(csv);
-    NavigatorEmbedded navigator(20, 2);
+    NavigatorEmbedded navigator(20, 2, &Serial);
     navigator.setMenu(myMenu.getVector());
     navigator.addListener(15, my_custom_event);
     navigator.addListener(11, my_custom_event1);
-    navigator.setPrinterOutput(&Serial);
     Serial.println("Print Main Menu");
     navigator.run();
     navigator.printCursorPos();

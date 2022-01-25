@@ -24,10 +24,8 @@
 
 class NavigatorLcd {
     public:
-        NavigatorLcd(uint8_t col, uint8_t row); // class constructor
+        NavigatorLcd(uint8_t col, uint8_t row, LiquidCrystal_I2C *lcd); // class constructor
         void run(); // Run the class
-        void setPrinterOutput(LiquidCrystal_I2C *lcd);
-        // void setPrinterOutput(Print *print);
         void addListener(uint8_t id, Listener listener); // add listener of class
         void addNotFoundListener(Listener listener);
         void removeListener(uint8_t); // remove listener of class
